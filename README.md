@@ -1,8 +1,3 @@
--- ============================================================
--- BLACKHOLE PROJECT - VERSAO XENO COMPATIVEL (FINAL v3)
--- FOV redondo via ImageLabel + AimColor com fallback de mouse
--- ============================================================
-
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
@@ -13,7 +8,6 @@ local LocalPlayer = Players.LocalPlayer
 local Camera = Workspace.CurrentCamera
 local CoreGui = game:GetService("CoreGui")
 
--- ====================== HELPERS XENO ======================
 local function safeWait()
     RunService.Heartbeat:Wait()
 end
@@ -33,7 +27,6 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
--- ====================== VARIAVEIS ======================
 local espEnabled, espNicksEnabled, espDistanceEnabled, espLifeEnabled, espGlowEnabled, espHitboxEnabled = false, false, false, false, false, false
 local teamCheck, wallCheck, aimbotEnabled, aimColorEnabled = false, false, false, false
 local showFov = true
@@ -78,7 +71,6 @@ local usingRgb = false
 local rgbHue = 0
 local rgbConnection = nil
 
--- ====================== DISFARCE PARTS (R6/R15 DINAMICO) ======================
 local function getDisfarceParts()
     local parts = {"Head", "HumanoidRootPart"}
     local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
@@ -107,7 +99,6 @@ local function getDisfarceParts()
     return parts
 end
 
--- ====================== MOUSE MOVE (FALLBACK ROBUSTO) ======================
 local mouseMoveFunc = nil
 
 if mousemoverel then
@@ -134,10 +125,6 @@ elseif VirtualInputManager then
     end
 end
 
-if not mouseMoveFunc then
-    warn("[Blackhole] Nenhuma funcao de mover mouse encontrada - AimColor nao vai puxar.")
-end
-
 local mouseClickFunc = nil
 if mouse1click then
     mouseClickFunc = function() mouse1click() end
@@ -149,7 +136,6 @@ elseif mouse1press and mouse1release then
     end
 end
 
--- ====================== FUNCOES AUXILIARES ======================
 local function getTeamColor(player)
     if player.Team then
         if player.Team.TeamColor then return player.Team.TeamColor.Color end
@@ -203,7 +189,6 @@ local function isMouseOverPanel()
     return mp.X >= ap.X and mp.X <= ap.X + as.X and mp.Y >= ap.Y and mp.Y <= ap.Y + as.Y
 end
 
--- ====================== CORES ======================
 local COLORS = {
     PRIMARY = Color3.fromRGB(0, 0, 0),
     SECONDARY = Color3.fromRGB(35, 35, 35),
@@ -228,16 +213,19 @@ local TITLE_COLORS = {
     {Nome = "RGB", Cor = Color3.fromRGB(255, 0, 0)}
 }
 
--- ====================== GUI ======================
 ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "BlackholeProject"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.IgnoreGuiInset = true
 ScreenGui.DisplayOrder = 999999
-local okParent = pcall(function() ScreenGui.Parent = CoreGui end)
-if not okParent or not ScreenGui.Parent then
-    pcall(function() ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui") end)
+
+local parentOk = pcall(function() ScreenGui.Parent = CoreGui end)
+if not parentOk or not ScreenGui.Parent then
+    parentOk = pcall(function() ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui", 5) end)
+end
+if not ScreenGui.Parent then
+    return
 end
 
 MainFrame = Instance.new("Frame", ScreenGui)
@@ -419,7 +407,6 @@ UserInputService.InputEnded:Connect(function(input)
     end
 end)
 
--- ====================== ABAS ======================
 local TabContent = Instance.new("Frame", MainFrame)
 TabContent.Size = UDim2.new(1, -20, 0, 300)
 TabContent.Position = UDim2.new(0, 10, 0, 80)
@@ -485,7 +472,6 @@ AimColorRightFrame.Position = UDim2.new(0.5, 5, 0, 0)
 AimColorRightFrame.BackgroundTransparency = 1
 addListLayout(AimColorRightFrame)
 
--- ====================== PAINEIS INFERIORES ======================
 local KeyPanel = Instance.new("Frame", MainFrame)
 KeyPanel.Size = UDim2.new(1, -20, 0, 45)
 KeyPanel.Position = UDim2.new(0, 10, 1, -50)
@@ -674,10 +660,10 @@ HitboxTabButton = createTabButton(TabBar, "Hitbox", UDim2.new(0, 450, 0, 0), fun
 
 showTab("ESP")
 
--- ====================== MENUS DE TECLA ======================
 KeyMenu = Instance.new("Frame", ScreenGui)
 KeyMenu.Size = UDim2.new(0, 250, 0, 120)
-KeyMenu.BackgroundColor3 = COLORS.PRIMARYKeyMenu.BackgroundTransparency = 0.5
+KeyMenu.BackgroundColor3 = COLORS.PRIMARY
+KeyMenu.BackgroundTransparency = 0.5
 KeyMenu.BorderSizePixel = 0
 KeyMenu.Visible = false
 KeyMenu.ZIndex = 10
@@ -776,7 +762,6 @@ ChangeAimbotKeyButton.MouseButton1Click:Connect(function()
     end
 end)
 
--- ====================== RASTREAMENTO DO MOUSE (REFORCADO) ======================
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
         mouse1Down = true
@@ -819,7 +804,6 @@ UserInputService.InputEnded:Connect(function(input, gameProcessed)
     end
 end)
 
--- ====================== FOV FRAMES (CIRCULO REDONDO - IMAGELABEL) ======================
 local CIRCLE_IMAGE = "rbxassetid://4965945816"
 
 local function createCircleFrame(name, radius, initialPos)
@@ -900,7 +884,6 @@ local function createFPSDisplay()
     fpsLabel = lbl
 end
 
--- ====================== COLOR MENU ======================
 local colorMenuTitle = nil
 
 local function updateAllDynamicColors(color)
@@ -995,7 +978,6 @@ ChangeColorButton.MouseButton1Click:Connect(function()
     end
 end)
 
--- ====================== TOGGLE E SLIDER ======================
 local function createToggleButton(parent, name, getState, onToggle)
     local f = Instance.new("Frame", parent)
     f.Size = UDim2.new(1, 0, 0, 32)
@@ -1095,7 +1077,6 @@ local function createSlider(parent, name, min, max, default, onChanged)
     return sc
 end
 
--- ====================== ESP / GLOW / LIFE / HITBOX ======================
 local function cleanupLifeESP(player)
     local d = lifeObjects[player]
     if d then
@@ -1259,7 +1240,6 @@ local function clearAllGlow()
     glowObjects = {}
 end
 
--- ====================== ESP HITBOX ======================
 local function createESPHitbox(player)
     if player == LocalPlayer then return end
     if espHitboxObjects[player] then
@@ -1337,7 +1317,6 @@ local function clearAllESPHitbox()
     espHitboxObjects = {}
 end
 
--- ====================== HITBOX EXPANDER ======================
 local function restoreHitboxPlayer(player)
     local o = hitboxOriginalSizes[player]
     if not o then return end
@@ -1407,7 +1386,6 @@ local function hookHitboxPlayer(player)
     end)
 end
 
--- ====================== ESP BILLBOARD ======================
 local function createESP(player)
     if player == LocalPlayer then return end
     if espBillboardObjects[player] then
@@ -1526,7 +1504,6 @@ local function recreateAllESP()
     end
 end
 
--- ====================== VISIBILIDADE E ALVO ======================
 local function isVisible(part)
     if not wallCheck then return true end
     local now = tick()
@@ -1574,7 +1551,6 @@ local function smoothLookAt(target)
     Camera.CFrame = Camera.CFrame:Lerp(targetCF, alpha)
 end
 
--- ====================== CRIAR ELEMENTOS ======================
 createToggleButton(ESPTabFrame, "ESP", function() return espEnabled end, function()
     espEnabled = not espEnabled
     if espEnabled then recreateAllESP() else clearAllESP(); clearAllGlow(); clearAllLifeESP(); clearAllESPHitbox() end
@@ -1634,7 +1610,6 @@ createSlider(AimColorRightFrame, "FOV AimColor", 20, 500, aimColorFovRadius, fun
 createSlider(AimColorRightFrame, "Forca AimColor", 5, 100, aimColorStrength * 100, function(v) aimColorStrength = v / 100 end)
 createSlider(AimColorRightFrame, "Predicao AimColor", 0, 500, aimColorPrediction * 1000, function(v) aimColorPrediction = v / 1000 end)
 
--- ====================== CONEXOES DE JOGADORES ======================
 for _, p in ipairs(Players:GetPlayers()) do
     if p ~= LocalPlayer then
         createESP(p); updateGlowForPlayer(p); updateLifeESP(p); hookHitboxPlayer(p)
@@ -1675,13 +1650,11 @@ Players.PlayerRemoving:Connect(function(p)
     hitboxOriginalSizes[p] = nil
 end)
 
--- ====================== LOOP PRINCIPAL ======================
 RunService.RenderStepped:Connect(function()
     if not panelLoaded then return end
     local mousePos = UserInputService:GetMouseLocation()
     local overPanel = isMouseOverPanel()
 
-    -- ===== FOV AIMBOT (fixo no centro da tela) =====
     if fovFrame then
         if not fovFrame.Parent and ScreenGui and ScreenGui.Parent then
             fovFrame.Parent = ScreenGui
@@ -1698,7 +1671,6 @@ RunService.RenderStepped:Connect(function()
         end
     end
 
-    -- ===== FOV AIMCOLOR (em volta do cursor) =====
     if aimColorFovFrame then
         if not aimColorFovFrame.Parent and ScreenGui and ScreenGui.Parent then
             aimColorFovFrame.Parent = ScreenGui
@@ -1715,7 +1687,6 @@ RunService.RenderStepped:Connect(function()
         end
     end
 
-    -- FPS
     if showFps and fpsLabel then
         frameCount = frameCount + 1
         local ct = tick()
@@ -1727,7 +1698,6 @@ RunService.RenderStepped:Connect(function()
         end
     end
 
-    -- Update ESP a cada 0.5s
     if tick() - espUpdateTimer >= 0.5 then
         espUpdateTimer = tick()
         updateAllESP()
@@ -1736,7 +1706,6 @@ RunService.RenderStepped:Connect(function()
         if hitboxExpanderEnabled then applyHitboxToAll() end
     end
 
-    -- Aimbot (botao direito)
     local rmbDown = UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2)
     if aimbotEnabled and rmbDown and not overPanel then
         local target, tp = getClosestPart(fovRadius)
@@ -1753,7 +1722,6 @@ RunService.RenderStepped:Connect(function()
         aimbotTargetFrame.Visible = false
     end
 
-    -- ===== AIMCOLOR (segurar LMB puxa o mouse na direcao do player) =====
     local lmbDown = mouse1Down or UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1)
     if aimColorEnabled and lmbDown and not overPanel then
         local parts = aimColorDisfarceEnabled and getDisfarceParts() or {targetPart}
@@ -1819,5 +1787,3 @@ end)
 
 updateAnonimatoVisual()
 panelLoaded = true
-
-print("[Blackhole Xeno] Painel carregado (FOV redondo + AimColor com fallback de mouse).")
