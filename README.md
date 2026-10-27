@@ -804,30 +804,33 @@ UserInputService.InputEnded:Connect(function(input, gameProcessed)
     end
 end)
 
-local CIRCLE_IMAGE = "rbxassetid://4965945816"
-
 local function createCircleFrame(name, radius, initialPos)
-    local holder = Instance.new("ImageLabel")
+    local holder = Instance.new("Frame")
     holder.Name = name
+    holder.BackgroundColor3 = Color3.new(1, 1, 1)
     holder.BackgroundTransparency = 1
-    holder.Image = CIRCLE_IMAGE
-    holder.ImageColor3 = currentTitleColor
-    holder.ImageTransparency = 0
-    holder.ScaleType = Enum.ScaleType.Fit
     holder.Size = UDim2.new(0, radius * 2, 0, radius * 2)
     holder.AnchorPoint = Vector2.new(0.5, 0.5)
     holder.Position = initialPos
     holder.ZIndex = 5
     holder.Visible = false
+    
+    local corner = Instance.new("UICorner", holder)
+    corner.CornerRadius = UDim.new(1, 0)
+    
+    local stroke = Instance.new("UIStroke", holder)
+    stroke.Thickness = 2
+    stroke.Color = currentTitleColor
+    stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    
     return holder
 end
 
 local function setCircleColor(circle, color)
     if not circle then return end
-    if circle:IsA("ImageLabel") then
-        circle.ImageColor3 = color
-    elseif circle:IsA("Frame") then
-        circle.BackgroundColor3 = color
+    local stroke = circle:FindFirstChildOfClass("UIStroke")
+    if stroke then
+        stroke.Color = color
     end
 end
 
